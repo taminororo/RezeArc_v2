@@ -1,0 +1,19 @@
+services:
+  next-app:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+      - "5555:5555"
+    volumes:
+      - .:/app
+      - node_modules_cache:/app/node_modules
+    environment:
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_INTERVAL=200
+      - TSC_WATCHFILE=UseFsEventsWithFallbackDynamicPolling
+
+volumes:
+  node_modules_cache: {}
