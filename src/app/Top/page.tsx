@@ -13,6 +13,7 @@ import TicketEventList from "@/components/ticketEventTopCard";
 import DetailCard from "@/components/detailCard";
 import AllMap from "@/components/mapAll";
 import { useLastUpdatedWatcher } from "@/hooks/useLastUpdatedWatcher";
+import { useRouter } from "next/navigation";
 
 // /api/events のレスポンス型
 type ApiEvent = {
@@ -50,6 +51,8 @@ export default function TicketDistributionPage() {
       (e) => e.isDistributingTicket === true && e.ticket_status === "limited"
     );
   }, [data]);
+
+  const router = useRouter();
 
   return (
     <div className="relative flex-1 w-full flex flex-col items-center">
@@ -107,8 +110,12 @@ export default function TicketDistributionPage() {
                 bottomTagComponent: <CongestionTag status={e.congestion_status} />,
                 onClick: () => {
                   console.log("clicked:", e.event_id);
+                  router.push("/ticketEventList"); // ✅ ページ遷移
+
+                  // router.push(`/ticketEventList?event_id=${e.event_id}`); // クエリで渡す場合
+                  // router.push(`/ticketEventList/${e.event_id}`); // 動的ルートで渡す場合
                 },
-              }))}
+              }))} // ← ★ ここを () で囲んでオブジェクトを返すように
             />
           )}
         </div>
@@ -126,7 +133,9 @@ export default function TicketDistributionPage() {
               </h3>
             }
             description="全ての企画の詳細情報と混雑状況をチェック"
-            onClick={() => {}}
+            onClick={() => {
+              router.push("/eventList"); // ✅ ページ遷移処理
+            }}
           />
         </div>
 
@@ -139,7 +148,9 @@ export default function TicketDistributionPage() {
               </h3>
             }
             description="整理券配布企画の残り状況をチェック"
-            onClick={() => {}}
+            onClick={() => {
+              router.push("/ticketEventList"); // ✅ ページ遷移処理
+            }}
           />
         </div>
 
