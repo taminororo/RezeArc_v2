@@ -30,7 +30,7 @@ export default function Page() {
       {/* メイン */}
       <main className="flex-1 w-full flex flex-col items-center gap-6 py-6 px-4">
         {/* タイトル */}
-        <h1 className="text-2xl font-bold text-black">企画マップ</h1>
+        <h1 className="text-2xl font-title text-black">企画マップ</h1>
 
         {/* フロア選択（必要に応じて項目を追加してください） */}
         <div className="w-full max-w-3xl">
