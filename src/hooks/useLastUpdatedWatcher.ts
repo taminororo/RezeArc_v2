@@ -31,7 +31,7 @@ export function useLastUpdatedWatcher(opts: Opts) {
     async function tick() {
       if (aborted.current) return;
       if (typeof document !== "undefined" && document.hidden) return; // タブ非表示時はスキップ
-      if (inFlight.current) return; // 重複リクエスト防止
+      if (inFlight.current) return; // 重複リクエスト防止a
       inFlight.current = true;
 
       try {
