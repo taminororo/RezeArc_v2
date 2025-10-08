@@ -7,17 +7,23 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export async function GET() {
-  const { _max } = await prisma.event.aggregate({ _max: { updatedAt: true } });
-  const ts = _max.updatedAt ? _max.updatedAt.toISOString() : null;
+  try {
+    const { _max } = await prisma.event.aggregate({ _max: { updatedAt: true } });
+    const ts = _max.updatedAt ? _max.updatedAt.toISOString() : null;
 
-  return NextResponse.json(
-    { last_updated: ts },
-    {
-      headers: {
-        "Cache-Control": "no-store, no-cache, must-revalidate",
-        Pragma: "no-cache",
-        Expires: "0",
-      },
-    }
-  );
+    return NextResponse.json(
+      { last_updated: ts },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
+      }
+    );
+  } catch (err) {
+    // 詳細は Vercel の Function ログに出力（本番では機密情報を返さない）
+    console.error("/api/events/lastupdated GET error:", err);
+    return new NextResponse("Internal Server Error", { status: 500 });
+  }
 }
