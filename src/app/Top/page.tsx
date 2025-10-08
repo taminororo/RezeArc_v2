@@ -71,8 +71,8 @@ export default function TicketDistributionPage() {
       {/* メインコンテンツ */}
       <main className="flex-1 w-full flex flex-col items-center min-h-[1428px]">
         {/* タイトル */}
-        <div className="flex flex-col items-center mt-24 mb-10">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-widest text-black drop-shadow-sm mb-2">
+        <div className="flex flex-col items-center mt-14 mb-10">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-widest text-black drop-shadow-sm mb-2 font-title">
             45th技大祭
           </h1>
           <p className="text-lg md:text-xl text-black tracking-wide">
@@ -80,7 +80,7 @@ export default function TicketDistributionPage() {
           </p>
         </div>
 
-        <h2 className="text-center text-2xl font-bold mt-4 text-black flex items-center justify-center gap-2">
+        <h2 className="text-center text-2xl font-bold mt-4 text-black flex items-center justify-center gap-2 font-title">
           整理券 残りわずか
           <Image
             src="/attention_logo.svg"
@@ -113,7 +113,7 @@ export default function TicketDistributionPage() {
           )}
         </div>
 
-        <h2 className="text-center text-2xl font-bold mt-4 text-black flex items-center justify-center gap-2">
+        <h2 className="text-center text-2xl font-bold mt-4 text-black flex items-center justify-center gap-2 font-title">
           企画情報をCheck
         </h2>
 
@@ -143,7 +143,7 @@ export default function TicketDistributionPage() {
           />
         </div>
 
-        <h2 className="text-center text-2xl font-bold mt-4 text-black flex items-center justify-center gap-2">
+        <h2 className="text-center text-2xl font-bold mt-4 text-black flex items-center justify-center gap-2 font-title">
           全体MAP
         </h2>
         <AllMap />
