@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Yuji+Syuku&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --color-base: #f3c623;
+  --color-bese_light: #f7de88;
+  --color-main: #3c486b;
+  --color-secondly: #fcf6ee;
+  --color-thirdly: #d0104c;
+  --color-font: #111111;
+  --color-map_pin1: #d33726;
+  --color-crowded: #f67173;
+  --color-slightly_crowded: #f6d831;
+  --color-not_crowded: #95f349;
+  --color-after_hours: #bbb8b8;
+  --color-crowded_marker: #ff4145;
+  --color-required: #f95a3e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@theme {
+  --font-title: "Yuji Syuku", sans-serif;
+  --font-main_text: "Zen Kaku Gothic New", sans-serif;
+}

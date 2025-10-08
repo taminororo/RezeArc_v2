@@ -1,153 +1,105 @@
-import { PrismaClient } from "../lib/generated/prisma-client";
+import { PrismaClient, TicketStatus, CongestionStatus } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+const EVENTS = [
+  {
+    eventId: 1,
+    eventName: "お化け屋敷",
+    isDistributingTicket: true,
+    ticketStatus: TicketStatus.limited,
+    congestionStatus: CongestionStatus.crowded,
+    eventText: null,
+    imagePath: "/event_photo1.svg",
+  },
+  {
+    eventId: 2,
+    eventName: "ゲスト企画",
+    isDistributingTicket: true,
+    ticketStatus: TicketStatus.limited,
+    congestionStatus: CongestionStatus.offtime,
+    eventText: null,
+    imagePath: "/event_photo2.svg",
+  },
+  {
+    eventId: 3,
+    eventName: "ワークショップ",
+    isDistributingTicket: false,
+    ticketStatus: null,
+    congestionStatus: CongestionStatus.crowded,
+    eventText: null,
+    imagePath: "/event_photo3.svg",
+  },
+  {
+    eventId: 4,
+    eventName: "8番出口",
+    isDistributingTicket: false,
+    ticketStatus: null,
+    congestionStatus: CongestionStatus.slightly_crowded,
+    eventText: null,
+    imagePath: "/event_photo4.svg",
+  },
+  {
+    eventId: 5,
+    eventName: "二人羽織",
+    isDistributingTicket: false,
+    ticketStatus: null,
+    congestionStatus: CongestionStatus.free,
+    eventText: null,
+    imagePath: "/event_photo5.svg",
+  },
+  {
+    eventId: 6,
+    eventName: "技大でバッティング",
+    isDistributingTicket: false,
+    ticketStatus: null,
+    congestionStatus: CongestionStatus.free,
+    eventText: null,
+    imagePath: "/event_photo6.svg",
+  },
+  {
+    eventId: 7,
+    eventName: "ビンゴ大会",
+    isDistributingTicket: false,
+    ticketStatus: null,
+    congestionStatus: CongestionStatus.offtime,
+    eventText: null,
+    imagePath: "/event_photo7.svg",
+  },
+  {
+    eventId: 8,
+    eventName: "ゲーム大会",
+    isDistributingTicket: false,
+    ticketStatus: null,
+    congestionStatus: CongestionStatus.offtime,
+    eventText: null,
+    imagePath: "/event_photo8.svg",
+  },
+];
+
 async function main() {
-  // Create 5 users
-  await prisma.user.createMany({
-    data: [
-      { email: "alice@example.com", name: "Alice" },
-      { email: "bob@example.com", name: "Bob" },
-      { email: "charlie@example.com", name: "Charlie" },
-      { email: "diana@example.com", name: "Diana" },
-      { email: "edward@example.com", name: "Edward" },
-    ],
-  });
-
-  // Find all users to get their IDs
-  const userRecords = await prisma.user.findMany();
-
-  const userIdMapping = {
-    alice: userRecords.find((user) => user.email === "alice@example.com")?.id,
-    bob: userRecords.find((user) => user.email === "bob@example.com")?.id,
-    charlie: userRecords.find((user) => user.email === "charlie@example.com")
-      ?.id,
-    diana: userRecords.find((user) => user.email === "diana@example.com")?.id,
-    edward: userRecords.find((user) => user.email === "edward@example.com")?.id,
-  };
-
-  // Create 15 posts distributed among users
-  await prisma.post.createMany({
-    data: [
-      // Alice's posts
-      {
-        title: "Getting Started with TypeScript and Prisma",
-        content:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce id erat a lorem tincidunt ultricies. Vivamus porta bibendum nulla vel accumsan.",
-        published: true,
-        authorId: userIdMapping.alice!,
+  for (const e of EVENTS) {
+    await prisma.event.upsert({
+      where: { eventId: e.eventId },
+      update: {
+        eventName: e.eventName,
+        isDistributingTicket: e.isDistributingTicket,
+        ticketStatus: e.ticketStatus,
+        congestionStatus: e.congestionStatus,
+        eventText: e.eventText,
+        imagePath: e.imagePath,
       },
-      {
-        title: "How ORMs Simplify Complex Queries",
-        content:
-          "Duis sagittis urna ut sapien tristique convallis. Aenean vel ligula felis. Phasellus bibendum sem at elit dictum volutpat.",
-        published: false,
-        authorId: userIdMapping.alice!,
-      },
-
-      // Bob's posts
-      {
-        title: "Mastering Prisma: Efficient Database Migrations",
-        content:
-          "Ut ullamcorper nec erat id auctor. Nullam nec ligula in ex feugiat tincidunt. Cras accumsan vehicula tortor ut eleifend.",
-        published: true,
-        authorId: userIdMapping.bob!,
-      },
-      {
-        title: "Best Practices for Type Safety in ORMs",
-        content:
-          "Aliquam erat volutpat. Suspendisse potenti. Maecenas fringilla elit vel eros laoreet, et tempor sapien vulputate.",
-        published: true,
-        authorId: userIdMapping.bob!,
-      },
-      {
-        title: "TypeScript Utility Types for Database Models",
-        content:
-          "Donec ac magna facilisis, vestibulum ligula at, elementum nisl. Morbi volutpat eget velit eu egestas.",
-        published: false,
-        authorId: userIdMapping.bob!,
-      },
-
-      // Charlie's posts (no posts for Charlie)
-
-      // Diana's posts
-      {
-        title: "Exploring Database Indexes and Their Performance Impact",
-        content:
-          "Vivamus ac velit tincidunt, sollicitudin erat quis, fringilla enim. Aenean posuere est a risus placerat suscipit.",
-        published: true,
-        authorId: userIdMapping.diana!,
-      },
-      {
-        title: "Choosing the Right Database for Your TypeScript Project",
-        content:
-          "Sed vel suscipit lorem. Duis et arcu consequat, sagittis justo quis, pellentesque risus. Curabitur sed consequat est.",
-        published: false,
-        authorId: userIdMapping.diana!,
-      },
-      {
-        title: "Designing Scalable Schemas with Prisma",
-        content:
-          "Phasellus ut erat nec elit ultricies egestas. Vestibulum rhoncus urna eget magna varius pharetra.",
-        published: true,
-        authorId: userIdMapping.diana!,
-      },
-      {
-        title: "Handling Relations Between Models in ORMs",
-        content:
-          "Integer luctus ac augue at tristique. Curabitur varius nisl vitae mi fringilla, vel tincidunt nunc dictum.",
-        published: false,
-        authorId: userIdMapping.diana!,
-      },
-
-      // Edward's posts
-      {
-        title: "Why TypeORM Still Has Its Place in 2025",
-        content:
-          "Morbi non arcu nec velit cursus feugiat sit amet sit amet mi. Etiam porttitor ligula id sem molestie, in tempor arcu bibendum.",
-        published: true,
-        authorId: userIdMapping.edward!,
-      },
-      {
-        title: "NoSQL vs SQL: The Definitive Guide for Developers",
-        content:
-          "Suspendisse a ligula sit amet risus ullamcorper tincidunt. Curabitur tincidunt, sapien id fringilla auctor, risus libero gravida odio, nec volutpat libero orci nec lorem.",
-        published: true,
-        authorId: userIdMapping.edward!,
-      },
-      {
-        title: "Optimizing Queries with Prisma’s Select and Include",
-        content:
-          "Proin vel diam vel nisi facilisis malesuada. Sed vitae diam nec magna mollis commodo a vitae nunc.",
-        published: false,
-        authorId: userIdMapping.edward!,
-      },
-      {
-        title: "PostgreSQL Optimizations Every Developer Should Know",
-        content:
-          "Nullam mollis quam sit amet lacus interdum, at suscipit libero pellentesque. Suspendisse in mi vitae magna finibus pretium.",
-        published: true,
-        authorId: userIdMapping.edward!,
-      },
-      {
-        title: "Scaling Applications with Partitioned Tables in PostgreSQL",
-        content:
-          "Cras vitae tortor in mauris tristique elementum non id ipsum. Nunc vitae pulvinar purus.",
-        published: true,
-        authorId: userIdMapping.edward!,
-      },
-    ],
-  });
-
-  console.log("Seeding completed.");
+      create: e,
+    });
+  }
+  console.log(`Seeded ${EVENTS.length} events`);
 }
 
 main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (e) => {
-    console.error(e);
-    await prisma.$disconnect();
+  .catch((err) => {
+    console.error(err);
     process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
   });

@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../lib/generated/prisma-client"
 }
 
 datasource db {
@@ -8,20 +7,28 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+enum TicketStatus {
+  distributing
+  limited
+  ended
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  Int
-  author    User     @relation(fields: [authorId], references: [id])
+enum CongestionStatus {
+  free
+  slightly_crowded
+  crowded
+  offtime
+}
+
+model Event {
+  id                 Int              @id @default(autoincrement())
+  eventId            Int              @unique            // 企画ID（アプリ上の安定ID）
+  eventName          String
+  isDistributingTicket Boolean        @default(false)
+  ticketStatus       TicketStatus?                        // 配布時のみ有効（NULL許容）
+  congestionStatus   CongestionStatus
+  eventText          String?                               // 説明文は任意
+  imagePath     String?  // 例: "events/3.webp"（/public/events/3.webp を指す）
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
 }
