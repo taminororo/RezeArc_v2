@@ -21,11 +21,11 @@ const LABELS: Record<TicketStatus, string> = {
 const STYLE: Record<TicketStatus, string> = {
   // 画像の雰囲気に寄せて、丸 pill + ボーダー + わずかは黄色系
   distributing:
-    "bg-emerald-100 text-emerald-900 border-emerald-300",
+    "bg-not_crowded text-font border-main font-main_text", // 緑 + 濃いめの縁取り
   limited:
-    "bg-amber-200 text-slate-900 border-slate-600", // 黄色 + 濃いめの縁取り
+    "bg-slightly_crowded text-font border-main font-main_text", // 黄色 + 濃いめの縁取り
   ended:
-    "bg-slate-200 text-slate-700 border-slate-300",
+    "bg-crowded text-font border-main font-main_text", // 赤 + 濃いめの縁取り
 };
 
 export default function TicketTag({
@@ -35,7 +35,7 @@ export default function TicketTag({
 }: TicketTagProps) {
   const label = LABELS[status];
   const base =
-    "inline-flex items-center rounded-full px-4 py-1.5 text-base font-semibold tracking-wide " +
+    "flex items-center justify-center rounded-lg w-[110px] h-[25px] text-base text-medium tracking-wide " +
     "border shadow-sm transition-colors";
   const classes = `${base} ${STYLE[status]} ${className}`;
 
