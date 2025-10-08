@@ -8,7 +8,7 @@ export default function MapPage() {
         { id: "large_experiment", x: 38, y: 21, href: "/facilities/large-experiment", label: "大型実験棟" },
         { id: "nuclear_system", x: 45.5, y: 35, href: "/facilities/nuclear-system", label: "原子力安全・システム安全棟" },
         { id: "new_lecture", x: 82.5, y: 38, href: "/facilities/new-lecture", label: "新講義棟" },
-        { id: "lecture", x: 76, y: 43, href: "/facilities/lecture", label: "講義棟" },
+        { id: "lecture", x: 76, y: 43, href: "/detailMap", label: "講義棟" },
         { id: "material", x: 67.3, y: 49, href: "/facilities/material", label: "物質材料棟" },
         { id: "mechanical_construction", x: 33.3, y: 49.5, href: "/facilities/mechanical-construction", label: "機械建設棟" },
         { id: "plaza", x: 46, y: 58, href: "/facilities/plaza", label: "広場" },
@@ -20,7 +20,6 @@ export default function MapPage() {
 
     return (
         <main className="min-h-dvh w-full flex flex-col items-center p-4">
-            <h1 className="text-2xl font-bold text-black mb-4">キャンパスマップ</h1>
 
             <MapWithPins
                 imageSrc="/map_all.svg"
