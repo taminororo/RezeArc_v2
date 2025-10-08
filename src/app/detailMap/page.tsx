@@ -43,7 +43,9 @@ export default function Page() {
       </main>
 
       {/* フッター */}
-      <Footer />
+      <div className="w-full mt-auto">
+        <Footer />
+      </div>
     </div>
   );
 }
