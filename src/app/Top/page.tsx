@@ -59,7 +59,7 @@ export default function TicketDistributionPage() {
           src="/backgroundTop.svg"
           alt="背景"
           fill
-          className="object-cover opacity-80"
+          className="object-cover brightness-100 opacity-100"
         />
       </div>
 
