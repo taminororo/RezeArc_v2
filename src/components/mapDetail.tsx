@@ -26,14 +26,14 @@ export type MapPoint = {
 
 /** ここが「不変の割り当て表」: SVG 上の座標に応じて、恒久的に ID を割り当てる */
 const POINTS: MapPoint[] = [
-  { id: 1, x: 38.0, y: 16.0, label: "お化け屋敷" },
-  { id: 2, x: 72.0, y: 83.0, label: "ゲスト企画" },
-  { id: 3, x: 53.0, y: 16.0, label: "ワークショップ" },
-  { id: 4, x: 66.0, y: 16.0, label: "8番出口" },
-  { id: 5, x: 80.0, y: 16.0, label: "二人羽織" },
-  { id: 6, x: 85.0, y: 36.0, label: "技大でバッティング" },
-  { id: 7, x: 74.0, y: 55.0, label: "ビンゴ大会" },
-  { id: 8, x: 59.0, y: 72.0, label: "ゲーム大会" },
+  { id: 1, x: 47.0, y: 16.0, label: "お化け屋敷" },
+  { id: 2, x: 80.0, y: 83.0, label: "ゲスト企画" },
+  { id: 3, x: 63.0, y: 16.0, label: "ワークショップ" },
+  { id: 4, x: 73.0, y: 16.0, label: "8番出口" },
+  { id: 5, x: 87.0, y: 16.0, label: "二人羽織" },
+  { id: 6, x: 90.0, y: 36.0, label: "技大でバッティング" },
+  { id: 7, x: 77.0, y: 53.0, label: "ビンゴ大会" },
+  { id: 8, x: 67.0, y: 70.0, label: "ゲーム大会" },
   // 必要に応じて増やす
 ];
 
@@ -68,41 +68,31 @@ export default function MapDetail({
 
   return (
     <div className="w-full">
+      <div className="relative w-full aspect-[1028/768] rounded-lg overflow-hidden shadow">
+  <Image
+    src="/map_1Fv2.svg"
+    alt="会場マップ"
+    fill
+    className="object-cover bg-white" // cover でも OK（比率一致なので欠けない）
+  />
+  <div className="absolute inset-0">
+    {POINTS.map((p) => (
       <div
-        className="relative w-full rounded-lg overflow-hidden shadow"
-        style={{ height }}
+        key={p.id}
+        className="absolute flex items-center gap-1"
+        style={{
+          left: `${p.x}%`,
+          top: `${p.y}%`,
+          transform: "translate(-50%, -50%)",
+        }}
       >
-        {/* 地図背景 */}
-        <Image
-          src={"/map_1Fv2.svg"}
-          alt="会場マップ"
-          fill
-          className="object-contain bg-white"
-        />
-
-        {/* ポイント配置 */}
-        {POINTS.map((p) => {
-          const status: CongestionStatus =
-            statusByEventId.get(p.id) ?? "offtime";
-          const size = p.size ?? 14;
-          return (
-            <div
-              key={p.id}
-              className="absolute flex items-center gap-1"
-              style={{
-                left: `${p.x}%`,
-                top: `${p.y}%`,
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              <CongestionPoint id={p.id} status={status} size={size} />
-              <span className="text-[10px] font-semibold text-black drop-shadow-sm bg-white/70 rounded px-1 py-0.5">
-                {p.label}
-              </span>
-            </div>
-          );
-        })}
+        <CongestionPoint id={p.id} status={statusByEventId.get(p.id) ?? "offtime"} size={p.size ?? 14} />
+        
       </div>
+    ))}
+  </div>
+</div>
+
 
       {/* 読み込み/エラー表示 */}
       <div className="mt-2 text-xs text-neutral-600">
