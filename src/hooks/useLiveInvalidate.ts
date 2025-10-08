@@ -1,52 +1,22 @@
 // src/hooks/useLiveInvalidate.ts
 "use client";
-import { useEffect, useRef } from "react";
-import { mutate } from "swr";
 
+import { useLastUpdatedWatcher } from "@/hooks/useLastUpdatedWatcher";
+
+/**
+ * SSE を廃止して /api/events/lastupdated をポーリングするラッパーに置き換えました。
+ * useLastUpdatedWatcher が変更検知時に mutate を呼ぶ実装になっているため、
+ * 本フックは単にキーを解決してポーリングフックを呼び出すだけです。
+ *
+ * keys: string[] | () => string[]
+ */
 export function useLiveInvalidate(keys: string[] | (() => string[])) {
-  const started = useRef(false);
+  const resolvedKeys = typeof keys === "function" ? keys() : keys;
 
-  useEffect(() => {
-    if (started.current) return;
-    started.current = true;
-
-    const targetKeys = typeof keys === "function" ? keys() : keys;
-    const es = new EventSource("/api/events/stream");
-
-    const revalidateAll = () => {
-      for (const k of targetKeys) mutate(k);
-    };
-
-    es.addEventListener("hello", () => {
-      // 接続直後に全面再検証（初回同期を保証）
-      revalidateAll();
-    });
-
-    es.addEventListener("update", (ev) => {
-      try {
-        const payload = JSON.parse((ev as MessageEvent).data) as
-          | { type: "eventUpdated"; eventId: number }
-          | { type: "bulkInvalidate" };
-
-        if (payload.type === "bulkInvalidate") {
-          revalidateAll();
-        } else if (payload.type === "eventUpdated") {
-          for (const k of targetKeys) {
-            if (k === "/api/events" || k === `/api/events/${payload.eventId}`) {
-              mutate(k);
-            }
-          }
-        }
-      } catch (e) {
-        // 何もしない（破損データは無視）
-      }
-    });
-
-    es.onerror = () => {
-      // EventSourceは自動再接続するので何もしない
-      // デバッグが必要なら console.log("SSE error") など
-    };
-
-    return () => es.close();
-  }, [keys]);
+  // useLastUpdatedWatcher はクライアントサイドフックで、内部で mutate を呼びます。
+  useLastUpdatedWatcher({
+    keys: resolvedKeys,
+    intervalMs: 10000,
+    endpoint: "/api/events/lastupdated",
+  });
 }
