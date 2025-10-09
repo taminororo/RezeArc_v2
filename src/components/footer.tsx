@@ -15,7 +15,7 @@ const Footer = () => {
         <div
           role="button"
           aria-label="logo"
-          onClick={() => router.push("/Top")} // ✅ ページ遷移処理
+          onClick={() => router.push("/")} // ✅ ページ遷移処理
           className="cursor-pointer" // ✅ カーソルをポインターに変更
         >
           <Image
