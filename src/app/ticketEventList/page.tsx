@@ -84,9 +84,9 @@ export default function TicketDistributionPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="企画名で検索（例：お化け屋敷）"
-            className="w-70 flex justify-center mx-auto border rounded px-4 py-2 bg-secondly rounded-full text-center"
+            className="w-70 flex justify-center mx-auto border rounded px-4 py-2 bg-secondly rounded-full text-center text-black"
           />
-          <p className="text-sm text-neutral-600 flex justify-center">
+          <p className="text-sm text-black flex justify-center">
             表示件数: {filtered.length} / 配布中 {distributing.length} 件 / 全{" "}
             {(data ?? []).length} 件 {isLoading && "(読み込み中…)"}
             {error && (
