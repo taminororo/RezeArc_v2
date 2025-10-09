@@ -1,125 +1,169 @@
+// src/app/Top/page.tsx
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useMemo } from "react";
 import Image from "next/image";
+import useSWR from "swr";
 
-/**
- * 簡易 DB 接続確認ページ
- *
- * - /api/health/db に GET リクエストを送り、接続の成否と event 件数を表示します。
- * - 自動で一回チェックし、再チェックボタンで手動確認できます。
- */
+import Header from "@/components/header";
+import Footer from "@/components/footer";
+import CongestionTag from "@/components/congestionTag";
+import TicketTag from "@/components/ticketTag";
+import TicketEventList from "@/components/ticketEventTopCard";
+import DetailCard from "@/components/detailCard";
+import AllMap from "@/components/mapAll";
+import { useLastUpdatedWatcher } from "@/hooks/useLastUpdatedWatcher";
+import { useRouter } from "next/navigation";
 
-type SuccessStatus = { ok: true; count: number };
-type ErrorStatus = { ok: false; error: string };
-type Status = SuccessStatus | ErrorStatus | null;
+// /api/events のレスポンス型
+type ApiEvent = {
+  event_id: number;
+  event_name: string;
+  isDistributingTicket: boolean;
+  ticket_status: "distributing" | "limited" | "ended" | null;
+  congestion_status: "free" | "slightly_crowded" | "crowded" | "offtime";
+  event_text: string | null;
+  image_path: string | null;
+  created_at?: string;
+  updated_at?: string;
+};
 
-export default function Home() {
-  const [status, setStatus] = useState<Status>(null);
-  const [loading, setLoading] = useState(false);
+// fetcher（常に最新取得）
+const fetcher = async (url: string): Promise<ApiEvent[]> => {
+  const r = await fetch(url, { cache: "no-store", next: { revalidate: 0 } });
+  if (!r.ok) throw new Error(`GET ${url} failed: ${r.status}`);
+  return (await r.json()) as ApiEvent[];
+};
 
-  async function check() {
-    setLoading(true);
-    setStatus(null);
+export default function TicketDistributionPage() {
+  // SWRで一覧を取得（フォーカス時の再検証は不要。ロングポーリングで更新）
+  const { data, isLoading, error } = useSWR<ApiEvent[]>("/api/events", fetcher, {
+    revalidateOnFocus: false,
+  });
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000); // 10s タイムアウト
+  // DBの last-updated を監視して差分があれば mutate("/api/events")
+  useLastUpdatedWatcher({ keys: ["/api/events"], intervalMs: 2000 });
 
-    try {
-      const res = await fetch("/api/health/db", { cache: "no-store", signal: controller.signal });
-      clearTimeout(timeout);
+  // 整理券を配布中かつ「残りわずか(limited)」のみ抽出
+  const limitedEvents = useMemo<ApiEvent[]>(() => {
+    const list = data ?? [];
+    return list.filter(
+      (e) => e.isDistributingTicket === true && e.ticket_status === "limited"
+    );
+  }, [data]);
 
-      if (!res.ok) {
-        const text = await res.text().catch(() => "");
-        setStatus({ ok: false, error: `HTTP ${res.status} ${text}` });
-        return;
-      }
-
-      const json = (await res.json()) as { ok: boolean; count?: number };
-      if (json.ok) {
-        setStatus({ ok: true, count: json.count ?? 0 });
-      } else {
-        setStatus({ ok: false, error: "unknown response" });
-      }
-    } catch (err: any) {
-      const message = err?.name === "AbortError" ? "timeout" : String(err?.message ?? err);
-      setStatus({ ok: false, error: message });
-    } finally {
-      clearTimeout(timeout);
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    // ページ読み込み時に一度チェック
-    check();
-  }, []);
+  const router = useRouter();
 
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[24px] row-start-2 items-center sm:items-start w-full max-w-3xl">
-        <div className="flex items-center gap-4">
-          <Image className="dark:invert" src="/next.svg" alt="Next.js logo" width={180} height={38} priority />
-          <h1 className="text-lg font-medium">DB 接続確認ページ</h1>
+    <div className="relative flex-1 w-full flex flex-col items-center">
+      {/* 背景画像 */}
+      <div className="absolute inset-0 w-full -z-10">
+        <Image
+          src="/backgroundTop.svg"
+          alt="背景"
+          fill
+          className="object-cover brightness-100 opacity-100"
+        />
+      </div>
+
+      {/* ヘッダー */}
+      <div className="w-full mt-auto">
+        <Header />
+      </div>
+
+      {/* メインコンテンツ */}
+      <main className="flex-1 w-full flex flex-col items-center min-h-[1428px]">
+        {/* タイトル */}
+        <div className="flex flex-col items-center mt-14 mb-10">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-widest text-black drop-shadow-sm mb-2 font-title">
+            45th技大祭
+          </h1>
+          <p className="text-lg md:text-xl text-black tracking-wide">
+            9/12sat　9/14sun
+          </p>
         </div>
 
-        <p className="text-sm text-muted-foreground">
-          下のボタンで /api/health/db にアクセスし、Prisma 経由で DB に接続できるかを確認します。
-          （10 秒でタイムアウトします）
-        </p>
+        <h2 className="text-center text-2xl font-bold mt-4 text-black flex items-center justify-center gap-2 font-title">
+          整理券 残りわずか
+          <Image
+            src="/attention_logo.svg"
+            alt="注意アイコン"
+            width={36}
+            height={36}
+            className="inline-block align-middle"
+          />
+        </h2>
 
-        <div className="w-full bg-white/80 dark:bg-black/60 border rounded-md p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <div className="text-xs text-gray-500">接続状態</div>
-              <div className="mt-1 text-sm">
-                {loading && <span>接続中…</span>}
-                {!loading && status === null && <span>未確認</span>}
-                {!loading && status && status.ok && (
-                  <span className="text-green-600">成功 — Event 件数: {status.count}</span>
-                )}
-                {!loading && status && !status.ok && (
-                  <span className="text-red-600">失敗 — {status.error}</span>
-                )}
-              </div>
-            </div>
-            <div>
-              <button
-                onClick={check}
-                className="rounded-full border border-solid px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200"
-                disabled={loading}
-              >
-                再チェック
-              </button>
-            </div>
-          </div>
+        <div className="px-8 mt-3 mb-8 w-full max-w-2xl">
+          {isLoading ? (
+            <p className="text-gray-600">読み込み中...</p>
+          ) : error ? (
+            <p className="text-red-600">
+              読み込みに失敗しました：{error instanceof Error ? error.message : String(error)}
+            </p>
+          ) : (
+            <TicketEventList
+              events={limitedEvents.map((e) => ({
+                imageSrc: e.image_path ?? "/event_photo1.svg",
+                title: e.event_name,
+                topTagComponent: <TicketTag status="limited" />,
+                bottomTagComponent: <CongestionTag status={e.congestion_status} />,
+                onClick: () => {
+                  console.log("clicked:", e.event_id);
+                  router.push("/ticketEventList"); // ✅ ページ遷移
 
-          <div className="text-xs text-gray-600">
-            API: <code className="bg-black/[.04] px-1 py-0.5">/api/health/db</code>
-          </div>
+                  // router.push(`/ticketEventList?event_id=${e.event_id}`); // クエリで渡す場合
+                  // router.push(`/ticketEventList/${e.event_id}`); // 動的ルートで渡す場合
+                },
+              }))} // ← ★ ここを () で囲んでオブジェクトを返すように
+            />
+          )}
         </div>
 
-        <div className="mt-4 w-full">
-          <ol className="font-mono list-inside list-decimal text-sm/6 text-left">
-            <li className="mb-2">このページは簡易的な DB ヘルスチェック用です。</li>
-            <li className="mb-2">
-              期待される成功レスポンス: <code>{"{ ok: true, count: <number> }"}</code>
-            </li>
-            <li className="mb-2">
-              失敗時は HTTP 500 などを返します。詳細はサーバーログ（Vercel の Function
-              ログ）を確認してください。
-            </li>
-            <li className="mb-2">seed データが入っていれば count は 8 になるはずです（prisma/seed.ts を参照）。</li>
-          </ol>
+        <h2 className="text-center text-2xl font-bold mt-4 text-black flex items-center justify-center gap-2 font-title">
+          企画情報をCheck
+        </h2>
+
+        <div className="px-8 mt-3 mb-3 w-full max-w-2xl">
+          <DetailCard
+            title={
+              <h3 className="px-2 text-lg sm:text-lg font-semibold mt-6 mb-4">
+                <span className="text-[#d72660]">企画</span>
+                <span className="text-black">を見る</span>
+              </h3>
+            }
+            description="全ての企画の詳細情報と混雑状況をチェック"
+            onClick={() => {
+              router.push("/eventList"); // ✅ ページ遷移処理
+            }}
+          />
         </div>
+
+        <div className="px-8 mt-3 mb-8 w-full max-w-2xl">
+          <DetailCard
+            title={
+              <h3 className="px-2 text-lg sm:text-lg font-semibold mt-6 mb-4">
+                <span className="text-[#d72660]">整理券配布企画</span>
+                <span className="text-black">を見る</span>
+              </h3>
+            }
+            description="整理券配布企画の残り状況をチェック"
+            onClick={() => {
+              router.push("/ticketEventList"); // ✅ ページ遷移処理
+            }}
+          />
+        </div>
+
+        <h2 className="text-center text-2xl font-bold mt-4 text-black flex items-center justify-center gap-2 font-title">
+          全体MAP
+        </h2>
+        <AllMap />
       </main>
 
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a className="flex items-center gap-2 hover:underline hover:underline-offset-4" href="https://nextjs.org" target="_blank" rel="noopener noreferrer">
-          <Image aria-hidden src="/file.svg" alt="File icon" width={16} height={16} />
-          Next.js
-        </a>
-      </footer>
+      {/* フッター */}
+      <div className="w-full mt-auto">
+        <Footer />
+      </div>
     </div>
   );
 }
