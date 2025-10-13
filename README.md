@@ -257,3 +257,28 @@ For further learning and support:
 - [Prisma Client API reference](https://www.prisma.io/docs/orm/prisma-client?utm_source=nextjs&utm_medium=example&utm_campaign=nextjs_example)
 - [Join our Discord community](https://pris.ly/discord?utm_source=nextjs&utm_medium=example&utm_campaign=nextjs_example)
 - [Follow us on Twitter](https://pris.ly/x?utm_source=nextjs&utm_medium=example&utm_campaign=nextjs_example)
+
+コピペして使って
+1. Docker起動
+docker-compose up
+
+2. Prismaクライアントを生成
+docker compose exec next-app npx prisma generate
+
+3. データベースマイグレーションを実行
+docker compose exec next-app npx prisma migrate dev --name init
+
+4. seedデータの生成
+docker compose exec next-app npm run seed
+
+4. データベース接続確認（オプション）
+docker compose exec next-app npx prisma studio
+
+MySQLに入る（オプション）
+docker compose exec -it db sh
+
+ログイン（オプション）
+mysql -u root -p
+
+DBを見る（オプション）
+show databases;
